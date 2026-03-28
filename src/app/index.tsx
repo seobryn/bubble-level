@@ -61,8 +61,6 @@ export default function HomeScreen() {
             </ThemedText>
           </ThemedView>
 
-          <View style={styles.spacer} />
-
           <ThemedView style={styles.levelCard} type="backgroundElement">
             <View style={styles.vialOuter}>
               <View
@@ -146,21 +144,19 @@ const styles = StyleSheet.create({
   subtitle: {
     lineHeight: 20,
   },
-  spacer: {
-    flex: 1,
-  },
   levelCard: {
+    flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: Spacing.four,
-    paddingVertical: Spacing.four,
+    paddingHorizontal: Spacing.two,
+    paddingVertical: Spacing.two,
     borderRadius: Spacing.four,
     gap: Spacing.three,
   },
   vialOuter: {
     width: "100%",
-    maxWidth: 320,
     aspectRatio: 1,
+    maxWidth: "90%",
     borderRadius: 999,
     padding: 10,
     backgroundColor: "#102111",
