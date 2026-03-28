@@ -13,6 +13,7 @@ import {
 } from "@/features/haptics/haptic-diagnostics";
 import { useHapticFeedback } from "@/features/haptics/use-haptic-feedback";
 import { computeBubbleOffset } from "@/features/level/bubble-visual";
+import { useInterpolatedBubblePosition } from "@/features/level/use-interpolated-bubble";
 import { useLevelSensor } from "@/features/level/use-level-sensor";
 import { useOnboarding } from "@/features/onboarding/use-onboarding";
 import { useTranslation } from "@/i18n/use-translation";

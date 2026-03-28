@@ -66,7 +66,9 @@ describe("useInterpolatedBubblePosition", () => {
 
 describe("useLinearInterpolatedBubblePosition", () => {
   it("should create animated style with default duration", () => {
-    const { useLinearInterpolatedBubblePosition } = require("@/features/level/use-interpolated-bubble");
+    const {
+      useLinearInterpolatedBubblePosition,
+    } = require("@/features/level/use-interpolated-bubble");
     const result = useLinearInterpolatedBubblePosition({ x: 10, y: 20 });
 
     expect(result).toBeDefined();
@@ -74,21 +76,27 @@ describe("useLinearInterpolatedBubblePosition", () => {
   });
 
   it("should accept custom duration", () => {
-    const { useLinearInterpolatedBubblePosition } = require("@/features/level/use-interpolated-bubble");
+    const {
+      useLinearInterpolatedBubblePosition,
+    } = require("@/features/level/use-interpolated-bubble");
     const result = useLinearInterpolatedBubblePosition({ x: 10, y: 20 }, 200);
 
     expect(result).toBeDefined();
   });
 
   it("should handle fast animations (50ms)", () => {
-    const { useLinearInterpolatedBubblePosition } = require("@/features/level/use-interpolated-bubble");
+    const {
+      useLinearInterpolatedBubblePosition,
+    } = require("@/features/level/use-interpolated-bubble");
     const result = useLinearInterpolatedBubblePosition({ x: 5, y: 10 }, 50);
 
     expect(result).toBeDefined();
   });
 
   it("should handle slow animations (500ms)", () => {
-    const { useLinearInterpolatedBubblePosition } = require("@/features/level/use-interpolated-bubble");
+    const {
+      useLinearInterpolatedBubblePosition,
+    } = require("@/features/level/use-interpolated-bubble");
     const result = useLinearInterpolatedBubblePosition({ x: 20, y: 30 }, 500);
 
     expect(result).toBeDefined();
