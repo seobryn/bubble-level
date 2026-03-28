@@ -54,8 +54,16 @@ Use the AAA pattern when useful:
 Recommended test anatomy:
 
 - Test file mirrors source file location.
+- Place tests inside a local `__tests__` folder near the unit under test.
+- Use `*.test.ts` or `*.test.tsx` naming for test files.
 - One describe block per unit or behavior area.
 - Clear setup helper functions for repeated scenarios.
+
+Component file organization:
+
+- Group each component in its own dedicated folder, for example: `button/`, `card/`, `modal/`.
+- Place component implementation, styles, and tests together in that folder.
+- Keep tests in a local `__tests__` folder inside the component folder.
 
 ## 5. Test Doubles and Boundaries
 

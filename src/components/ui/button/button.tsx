@@ -4,7 +4,7 @@ import { ThemedText } from "@/components/themed-text";
 import {
   resolveAppButtonStyle,
   type AppButtonColorTheme,
-} from "@/components/ui/app-button.styles";
+} from "@/components/ui/button/button.styles";
 import { Spacing } from "@/constants/theme";
 import {
   ButtonVariant,

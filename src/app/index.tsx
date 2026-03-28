@@ -3,7 +3,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { AppButton } from "@/components/ui/app-button";
+import { AppButton } from "@/components/ui/button";
 import { BottomTabInset, MaxContentWidth, Spacing } from "@/constants/theme";
 import { useLevelSensor } from "@/features/level/use-level-sensor";
 

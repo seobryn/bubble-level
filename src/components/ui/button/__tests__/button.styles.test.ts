@@ -1,4 +1,4 @@
-import { resolveAppButtonStyle } from "@/components/ui/app-button.styles";
+import { resolveAppButtonStyle } from "@/components/ui/button/button.styles";
 import { ButtonVariant } from "@/design-system/tokens";
 
 describe("resolveAppButtonStyle", () => {
