@@ -1,4 +1,4 @@
-import { useCallback, useRef } from "react";
+import { useCallback } from "react";
 
 import { shouldTriggerHaptic } from "@/features/haptics/haptic-feedback";
 
@@ -16,12 +16,13 @@ type UseHapticFeedbackState = {
 /**
  * Hook to manage haptic feedback with de-duplication.
  * Triggers haptic on transition to near-level state.
+ *
+ * Note: The caller is responsible for tracking previous state and
+ * determining when to call this function.
  */
 export function useHapticFeedback({
   executeHaptic = defaultHaptic,
 }: UseHapticFeedbackProps = {}): UseHapticFeedbackState {
-  const prevNearLevelRef = useRef(false);
-
   const triggerOnNearLevel = useCallback(
     (prevNearLevel: boolean, currentNearLevel: boolean) => {
       const shouldTrigger = shouldTriggerHaptic(
@@ -29,16 +30,31 @@ export function useHapticFeedback({
         currentNearLevel,
       );
 
-      if (shouldTrigger) {
-        try {
-          executeHaptic();
-        } catch (error) {
-          // Silently fail if haptics unavailable
-          console.debug("Haptic feedback failed:", error);
-        }
+      if (!shouldTrigger) {
+        return;
       }
 
-      prevNearLevelRef.current = currentNearLevel;
+      console.log(
+        "[Haptics] Triggering feedback on transition:",
+        `${prevNearLevel} → ${currentNearLevel}`,
+      );
+
+      try {
+        const result = executeHaptic();
+
+        // Handle async Promise
+        if (result instanceof Promise) {
+          result
+            .then(() => {
+              console.log("[Haptics] ✓ Haptic feedback executed successfully");
+            })
+            .catch((error) => {
+              console.warn("[Haptics] ✗ Haptic execution failed:", error);
+            });
+        }
+      } catch (error) {
+        console.warn("[Haptics] ✗ Error triggering haptic:", error);
+      }
     },
     [executeHaptic],
   );
@@ -50,8 +66,12 @@ async function defaultHaptic(): Promise<void> {
   // Import dynamically to avoid issues when expo-haptics is not available
   try {
     const { vibrate } = await import("expo-haptics");
+    console.log("[Haptics] Imported expo-haptics, executing vibrate");
     await vibrate(30); // 30ms light haptic
-  } catch {
-    // Haptics not available on this platform
+  } catch (error) {
+    console.warn(
+      "[Haptics] Failed to execute haptic (platform may not support it):",
+      error,
+    );
   }
 }

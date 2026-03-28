@@ -16,9 +16,9 @@ import {
   createInitialStepState,
   getNextStep,
   getPreviousStep,
-  getStepProgress,
   isLastStep,
 } from "@/features/onboarding/step-manager";
+import { useTranslation } from "@/i18n/use-translation";
 
 type OnboardingModalProps = {
   hints: OnboardingHint[];
@@ -40,6 +40,7 @@ export function OnboardingModal({
   visible,
   onDismiss,
 }: OnboardingModalProps) {
+  const { t } = useTranslation();
   const [stepState, setStepState] = useState(() =>
     createInitialStepState(hints.length),
   );
@@ -52,6 +53,16 @@ export function OnboardingModal({
   const IllustrationComponent = currentHint
     ? ILLUSTRATION_MAP[currentHint.id] || TiltDeviceIllustration
     : null;
+
+  // Map hint IDs to translation keys
+  const getHintText = (hintId: string): string => {
+    const hintKeyMap: Record<string, string> = {
+      "tilt-device": "hint.tilt",
+      "center-bubble": "hint.center",
+      "tap-to-calibrate": "hint.calibrate",
+    };
+    return t(hintKeyMap[hintId] || "hint.tilt");
+  };
 
   const handleNext = () => {
     setStepState(getNextStep);
@@ -85,10 +96,10 @@ export function OnboardingModal({
           {currentHint && (
             <View style={styles.textContainer}>
               <ThemedText type="subtitle" style={styles.stepTitle}>
-                Step {stepState.currentStep + 1}
+                {t("onboarding.step")} {stepState.currentStep + 1}
               </ThemedText>
               <ThemedText type="default" style={styles.hintText}>
-                {currentHint.text}
+                {getHintText(currentHint.id)}
               </ThemedText>
             </View>
           )}
@@ -112,7 +123,10 @@ export function OnboardingModal({
             themeColor="textSecondary"
             style={styles.progressText}
           >
-            {getStepProgress(stepState)}
+            {t("onboarding.progress", {
+              current: stepState.currentStep + 1,
+              total: stepState.totalSteps,
+            })}
           </ThemedText>
         </View>
 
@@ -134,7 +148,7 @@ export function OnboardingModal({
                 !canGoPrevious(stepState) && styles.navButtonTextDisabled,
               ]}
             >
-              ← Back
+              {t("onboarding.back")}
             </ThemedText>
           </Pressable>
 
@@ -149,7 +163,7 @@ export function OnboardingModal({
               ]}
             >
               <ThemedText type="smallBold" style={styles.primaryButtonText}>
-                Get Started →
+                {t("onboarding.getStarted")}
               </ThemedText>
             </Pressable>
           ) : (
@@ -169,7 +183,7 @@ export function OnboardingModal({
                   !canGoNext(stepState) && styles.navButtonTextDisabled,
                 ]}
               >
-                Next →
+                {t("onboarding.next")}
               </ThemedText>
             </Pressable>
           )}

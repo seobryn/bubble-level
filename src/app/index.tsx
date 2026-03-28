@@ -2,20 +2,38 @@ import { useEffect, useRef } from "react";
 import { StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { LanguageSelector } from "@/components/language-selector";
 import { OnboardingModal } from "@/components/onboarding-modal";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { MaxContentWidth, Spacing } from "@/constants/theme";
+import {
+  hapticTriggerTracker,
+  logHapticDiagnostics,
+} from "@/features/haptics/haptic-diagnostics";
 import { useHapticFeedback } from "@/features/haptics/use-haptic-feedback";
 import { computeBubbleOffset } from "@/features/level/bubble-visual";
 import { useLevelSensor } from "@/features/level/use-level-sensor";
 import { useOnboarding } from "@/features/onboarding/use-onboarding";
+import { useTranslation } from "@/i18n/use-translation";
 
 export default function HomeScreen() {
   const level = useLevelSensor();
   const { hints, dismissHints } = useOnboarding();
   const { triggerOnNearLevel } = useHapticFeedback();
+  const { t } = useTranslation();
   const prevNearLevelRef = useRef(false);
+
+  // Initialize diagnostics on mount
+  useEffect(() => {
+    console.log("[App] Initializing haptic diagnostics");
+    hapticTriggerTracker.enable();
+    logHapticDiagnostics();
+
+    return () => {
+      hapticTriggerTracker.disable();
+    };
+  }, []);
 
   const bubbleOffset = computeBubbleOffset({
     angles: level.angles,
@@ -25,18 +43,29 @@ export default function HomeScreen() {
 
   // Trigger haptic feedback on near-level state change
   useEffect(() => {
-    triggerOnNearLevel(prevNearLevelRef.current, level.nearLevel);
+    const shouldTrigger = !prevNearLevelRef.current && level.nearLevel;
+    hapticTriggerTracker.logTrigger(
+      prevNearLevelRef.current,
+      level.nearLevel,
+      shouldTrigger,
+    );
+
+    if (shouldTrigger) {
+      console.log("[App] Calling triggerOnNearLevel");
+      triggerOnNearLevel(prevNearLevelRef.current, level.nearLevel);
+    }
+
     prevNearLevelRef.current = level.nearLevel;
   }, [level.nearLevel, triggerOnNearLevel]);
 
   const statusIndicator =
     level.status === "loading"
-      ? { text: "Initializing...", color: "#999" }
+      ? { text: t("status.initializing"), color: "#999" }
       : level.status === "error"
-        ? { text: "Error", color: "#ef4444" }
+        ? { text: t("status.error"), color: "#ef4444" }
         : level.nearLevel
-          ? { text: "✓ Level", color: "#22c55e" }
-          : { text: "Adjust Position", color: "#f97316" };
+          ? { text: t("status.level"), color: "#22c55e" }
+          : { text: t("status.adjustPosition"), color: "#f97316" };
 
   return (
     <>
@@ -49,16 +78,19 @@ export default function HomeScreen() {
       <ThemedView style={styles.container}>
         <SafeAreaView style={styles.safeArea}>
           <ThemedView style={styles.heroSection} type="backgroundElement">
-            <ThemedText type="title" style={styles.title}>
-              Bubble Level
-            </ThemedText>
-            <ThemedText
-              type="small"
-              themeColor="textSecondary"
-              style={styles.subtitle}
-            >
-              Tilt the device and keep the bubble on the center cross
-            </ThemedText>
+            <View>
+              <ThemedText type="title" style={styles.title}>
+                {t("app.title")}
+              </ThemedText>
+              <ThemedText
+                type="small"
+                themeColor="textSecondary"
+                style={styles.subtitle}
+              >
+                {t("app.subtitle")}
+              </ThemedText>
+            </View>
+            <LanguageSelector />
           </ThemedView>
 
           <ThemedView style={styles.levelCard} type="backgroundElement">
@@ -131,8 +163,8 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   heroSection: {
-    alignItems: "flex-start",
-    justifyContent: "flex-start",
+    alignItems: "stretch",
+    justifyContent: "space-between",
     paddingHorizontal: Spacing.four,
     paddingVertical: Spacing.four,
     borderRadius: Spacing.four,
