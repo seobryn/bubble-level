@@ -62,13 +62,36 @@ export function useHapticFeedback({
   return { triggerOnNearLevel };
 }
 
+function isModuleNotFoundError(error: unknown): boolean {
+  if (!(error instanceof Error)) {
+    return false;
+  }
+
+  return error.message.includes("Cannot find module 'expo-haptics'");
+}
+
 async function defaultHaptic(): Promise<void> {
   // Import dynamically to avoid issues when expo-haptics is not available
   try {
-    const { vibrate } = await import("expo-haptics");
-    console.log("[Haptics] Imported expo-haptics, executing vibrate");
-    await vibrate(30); // 30ms light haptic
+    const Haptics = await import("expo-haptics");
+
+    if (!Haptics.impactAsync) {
+      console.warn(
+        "[Haptics] expo-haptics loaded but impactAsync is unavailable on this platform.",
+      );
+      return;
+    }
+
+    console.log("[Haptics] Imported expo-haptics, executing light impact");
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   } catch (error) {
+    if (isModuleNotFoundError(error)) {
+      console.warn(
+        "[Haptics] expo-haptics is not installed. Run `npx expo install expo-haptics`.",
+      );
+      return;
+    }
+
     console.warn(
       "[Haptics] Failed to execute haptic (platform may not support it):",
       error,

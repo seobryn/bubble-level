@@ -36,7 +36,7 @@ export const translations: Record<Language, Translations> = {
   },
   es: {
     // Pantalla principal
-    "app.title": "Nivel de Burbuja",
+    "app.title": "Nivel",
     "app.subtitle":
       "Inclina el dispositivo y mantén la burbuja en la cruz central",
 

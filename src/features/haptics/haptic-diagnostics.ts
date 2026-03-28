@@ -3,25 +3,41 @@
  * Use this to verify expo-haptics availability and test haptic execution.
  */
 
+function isModuleNotFoundError(error: unknown): boolean {
+  if (!(error instanceof Error)) {
+    return false;
+  }
+
+  return error.message.includes("Cannot find module 'expo-haptics'");
+}
+
 export async function testHapticAvailability(): Promise<{
   available: boolean;
   error?: string;
 }> {
   try {
-    const { vibrate } = await import("expo-haptics");
+    const Haptics = await import("expo-haptics");
 
-    if (!vibrate) {
+    if (!Haptics.impactAsync) {
       return {
         available: false,
-        error: "expo-haptics found but vibrate function not available",
+        error: "expo-haptics found but impactAsync is not available",
       };
     }
 
-    // Try a minimal vibration
-    await vibrate(10);
+    // Try a lightweight impact as a capability check.
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
     return { available: true };
   } catch (error) {
+    if (isModuleNotFoundError(error)) {
+      return {
+        available: false,
+        error:
+          "expo-haptics is not installed. Run `npx expo install expo-haptics`.",
+      };
+    }
+
     return {
       available: false,
       error: `${error instanceof Error ? error.message : String(error)}`,
