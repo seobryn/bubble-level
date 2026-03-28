@@ -1,29 +1,73 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Accelerometer, Gyroscope } from "expo-sensors";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
+import {
+  loadCalibration,
+  saveCalibration,
+} from "@/features/level/calibration-store";
+import {
+  deriveCalibrationOffset,
+  resetCalibrationOffset,
+} from "@/features/level/level-calibration";
 import { type LevelAngles } from "@/features/level/level-engine";
 import { computeLevelFromSensors } from "@/features/level/sensor-adapter";
 
 type SensorStatus = "loading" | "ready" | "error";
 
-export type LevelSensorState = {
+type LevelSensorStateData = {
   status: SensorStatus;
   angles: LevelAngles;
   nearLevel: boolean;
+  calibrationOffset: LevelAngles;
   errorMessage?: string;
+};
+
+export type LevelSensorState = LevelSensorStateData & {
+  calibrate: () => Promise<void>;
+  resetCalibration: () => Promise<void>;
 };
 
 const DEFAULT_ANGLES: LevelAngles = { pitch: 0, roll: 0 };
 
 export function useLevelSensor(): LevelSensorState {
-  const [state, setState] = useState<LevelSensorState>({
+  const [state, setState] = useState<LevelSensorStateData>({
     status: "loading",
     angles: DEFAULT_ANGLES,
     nearLevel: true,
+    calibrationOffset: resetCalibrationOffset(),
   });
 
   const latestGyroscope = useRef({ x: 0, y: 0, z: 0 });
   const latestAngles = useRef<LevelAngles>(DEFAULT_ANGLES);
+  const calibrationOffset = useRef<LevelAngles>(resetCalibrationOffset());
+
+  const calibrate = useCallback(async () => {
+    const nextOffset = deriveCalibrationOffset(
+      calibrationOffset.current,
+      latestAngles.current,
+    );
+
+    calibrationOffset.current = nextOffset;
+    await saveCalibration(AsyncStorage, nextOffset);
+
+    setState((current) => ({
+      ...current,
+      calibrationOffset: nextOffset,
+    }));
+  }, []);
+
+  const resetCalibration = useCallback(async () => {
+    const nextOffset = resetCalibrationOffset();
+
+    calibrationOffset.current = nextOffset;
+    await saveCalibration(AsyncStorage, nextOffset);
+
+    setState((current) => ({
+      ...current,
+      calibrationOffset: nextOffset,
+    }));
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -41,6 +85,7 @@ export function useLevelSensor(): LevelSensorState {
               status: "error",
               angles: DEFAULT_ANGLES,
               nearLevel: true,
+              calibrationOffset: calibrationOffset.current,
               errorMessage:
                 "Required motion sensors are not available on this device.",
             });
@@ -48,6 +93,10 @@ export function useLevelSensor(): LevelSensorState {
 
           return;
         }
+
+        const storedCalibration = await loadCalibration(AsyncStorage);
+        calibrationOffset.current =
+          storedCalibration ?? resetCalibrationOffset();
 
         Accelerometer.setUpdateInterval(100);
         Gyroscope.setUpdateInterval(100);
@@ -70,6 +119,7 @@ export function useLevelSensor(): LevelSensorState {
               },
               gyroscope: latestGyroscope.current,
               previousAngles: latestAngles.current,
+              calibration: calibrationOffset.current,
               alpha: 0.2,
               toleranceDeg: 1,
             });
@@ -84,6 +134,7 @@ export function useLevelSensor(): LevelSensorState {
               status: "ready",
               angles: result.angles,
               nearLevel: result.nearLevel,
+              calibrationOffset: calibrationOffset.current,
             });
           },
         );
@@ -104,6 +155,7 @@ export function useLevelSensor(): LevelSensorState {
             status: "error",
             angles: DEFAULT_ANGLES,
             nearLevel: true,
+            calibrationOffset: calibrationOffset.current,
             errorMessage: "Unable to start motion sensors. Please try again.",
           });
         }
@@ -122,5 +174,9 @@ export function useLevelSensor(): LevelSensorState {
     };
   }, []);
 
-  return state;
+  return {
+    ...state,
+    calibrate,
+    resetCalibration,
+  };
 }

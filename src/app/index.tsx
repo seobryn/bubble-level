@@ -1,4 +1,4 @@
-import { StyleSheet } from "react-native";
+import { Pressable, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { ThemedText } from "@/components/themed-text";
@@ -12,6 +12,7 @@ function formatAngle(value: number) {
 
 export default function HomeScreen() {
   const level = useLevelSensor();
+  const canCalibrate = level.status === "ready";
 
   return (
     <ThemedView style={styles.container}>
@@ -62,6 +63,35 @@ export default function HomeScreen() {
               {level.errorMessage}
             </ThemedText>
           )}
+
+          <ThemedText type="small" themeColor="textSecondary">
+            Calibration offset: pitch{" "}
+            {formatAngle(level.calibrationOffset.pitch)} / roll{" "}
+            {formatAngle(level.calibrationOffset.roll)}
+          </ThemedText>
+
+          <ThemedView style={styles.actionsRow}>
+            <Pressable
+              disabled={!canCalibrate}
+              onPress={() => {
+                void level.calibrate();
+              }}
+              style={[
+                styles.actionButton,
+                !canCalibrate && styles.actionButtonDisabled,
+              ]}
+            >
+              <ThemedText type="smallBold">Set Current as Level</ThemedText>
+            </Pressable>
+            <Pressable
+              onPress={() => {
+                void level.resetCalibration();
+              }}
+              style={styles.actionButton}
+            >
+              <ThemedText type="smallBold">Reset Calibration</ThemedText>
+            </Pressable>
+          </ThemedView>
         </ThemedView>
       </SafeAreaView>
     </ThemedView>
@@ -115,5 +145,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.three,
     borderRadius: Spacing.four,
+  },
+  actionsRow: {
+    flexDirection: "row",
+    gap: Spacing.two,
+  },
+  actionButton: {
+    flex: 1,
+    borderRadius: Spacing.three,
+    paddingHorizontal: Spacing.two,
+    paddingVertical: Spacing.two,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  actionButtonDisabled: {
+    opacity: 0.5,
   },
 });
