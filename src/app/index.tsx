@@ -41,6 +41,13 @@ export default function HomeScreen() {
     maxTiltDeg: 10,
   });
 
+  // Smooth interpolation for bubble movement
+  const bubbleAnimatedStyle = useInterpolatedBubblePosition(bubbleOffset, {
+    damping: 0.8,
+    mass: 0.5,
+    stiffness: 100,
+  });
+
   // Trigger haptic feedback on near-level state change
   useEffect(() => {
     const shouldTrigger = !prevNearLevelRef.current && level.nearLevel;
@@ -109,21 +116,16 @@ export default function HomeScreen() {
                   <View style={styles.crossVertical} />
                 </View>
 
-                <View
+                <Animated.View
                   style={[
                     styles.bubble,
                     level.nearLevel && styles.bubbleLevel,
-                    {
-                      transform: [
-                        { translateX: bubbleOffset.x },
-                        { translateY: bubbleOffset.y },
-                      ],
-                    },
+                    bubbleAnimatedStyle,
                   ]}
                 >
                   <View style={styles.bubbleCrossHorizontal} />
                   <View style={styles.bubbleCrossVertical} />
-                </View>
+                </Animated.View>
               </View>
             </View>
 
