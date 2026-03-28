@@ -44,11 +44,7 @@ export default function HomeScreen() {
   });
 
   // Smooth interpolation for bubble movement
-  const bubbleAnimatedStyle = useInterpolatedBubblePosition(bubbleOffset, {
-    damping: 0.8,
-    mass: 0.5,
-    stiffness: 100,
-  });
+  const bubbleAnimatedStyle = useInterpolatedBubblePosition(bubbleOffset);
 
   // Trigger haptic feedback on near-level state change
   useEffect(() => {

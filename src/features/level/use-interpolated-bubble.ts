@@ -11,20 +11,22 @@ import type { BubbleOffset } from "@/features/level/bubble-visual";
 
 type InterpolationConfig = {
   /**
-   * Damping ratio for spring animation (0-1).
-   * Lower = more bouncy, Higher = more damped
-   * Default: 0.8
+   * Damping coefficient for spring animation.
+   * This is NOT a ratio — it's a physical coefficient.
+   * Critical damping (no oscillation) = 2 × √(mass × stiffness)
+   * Must exceed the critical value to avoid oscillation.
+   * Default: 20 (overdamped relative to default mass/stiffness, no oscillation)
    */
   damping?: number;
 
   /**
-   * Mass of the animated object
+   * Mass of the animated object.
    * Default: 0.5
    */
   mass?: number;
 
   /**
-   * Stiffness of the spring (how quickly it moves)
+   * Stiffness of the spring (how quickly it responds).
    * Default: 100
    */
   stiffness?: number;
@@ -47,7 +49,9 @@ export function useInterpolatedBubblePosition(
   targetOffset: BubbleOffset,
   config: InterpolationConfig = {},
 ) {
-  const { damping = 0.8, mass = 0.5, stiffness = 100 } = config;
+  // Critical damping = 2 × √(mass × stiffness) = 2 × √(0.5 × 100) ≈ 14.1
+  // Using damping=20 keeps the spring overdamped (no oscillation) while staying responsive
+  const { damping = 20, mass = 0.5, stiffness = 100 } = config;
 
   const animatedX = useSharedValue(targetOffset.x);
   const animatedY = useSharedValue(targetOffset.y);
