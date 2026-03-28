@@ -107,7 +107,10 @@ export default function HomeScreen() {
                 ]}
               >
                 <View style={styles.liquidBase} />
+                <View style={styles.liquidDepth} />
                 <View style={styles.liquidGlow} />
+                <View style={styles.liquidSheen} />
+                <View style={styles.liquidBloom} />
 
                 <View style={styles.centerCross}>
                   <View style={styles.crossHorizontal} />
@@ -191,34 +194,62 @@ const styles = StyleSheet.create({
     maxWidth: "90%",
     borderRadius: 999,
     padding: 10,
-    backgroundColor: "#102111",
+    backgroundColor: "#0f2012",
     borderWidth: 3,
-    borderColor: "#1f3122",
+    borderColor: "#29462e",
   },
   vialInner: {
     flex: 1,
     borderRadius: 999,
-    backgroundColor: "#69c56d",
+    backgroundColor: "#64c56f",
     overflow: "hidden",
     justifyContent: "center",
     alignItems: "center",
   },
   vialInnerLevel: {
-    backgroundColor: "#4ade80",
-    borderColor: "#22c55e",
+    backgroundColor: "#5cea8e",
+    borderColor: "#2dd46f",
   },
   liquidBase: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "#5aba60",
+    backgroundColor: "#58bb66",
+  },
+  liquidDepth: {
+    position: "absolute",
+    left: -10,
+    right: -10,
+    bottom: -8,
+    height: "56%",
+    borderRadius: 999,
+    backgroundColor: "rgba(24, 107, 55, 0.42)",
   },
   liquidGlow: {
     position: "absolute",
-    left: 16,
-    top: 20,
-    right: 16,
-    height: 80,
+    left: 18,
+    top: 16,
+    right: 18,
+    height: 92,
     borderRadius: 999,
-    backgroundColor: "rgba(229, 255, 210, 0.52)",
+    backgroundColor: "rgba(226, 255, 206, 0.58)",
+  },
+  liquidSheen: {
+    position: "absolute",
+    width: "36%",
+    height: "70%",
+    top: "8%",
+    left: "10%",
+    borderRadius: 999,
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    transform: [{ rotate: "-18deg" }],
+  },
+  liquidBloom: {
+    position: "absolute",
+    width: 140,
+    height: 140,
+    right: -12,
+    bottom: -6,
+    borderRadius: 999,
+    backgroundColor: "rgba(147, 255, 165, 0.2)",
   },
   centerCross: {
     position: "absolute",

@@ -8,7 +8,10 @@
     "scheme": "bubblelevel",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/expo.icon",
+      "infoPlist": {
+        "NSMotionUsageDescription": "Bubble Level needs motion access to read tilt and show accurate level measurements."
+      }
     },
     "android": {
       "adaptiveIcon": {

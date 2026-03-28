@@ -30,6 +30,35 @@ export type LevelSensorState = LevelSensorStateData & {
 
 const DEFAULT_ANGLES: LevelAngles = { pitch: 0, roll: 0 };
 
+type MotionPermissionSummary = {
+  granted: boolean;
+  canAskAgain: boolean;
+};
+
+async function requestMotionPermissions(): Promise<MotionPermissionSummary> {
+  const responses = await Promise.all([
+    Accelerometer.requestPermissionsAsync?.(),
+    Gyroscope.requestPermissionsAsync?.(),
+  ]);
+
+  const validResponses = responses.filter(
+    (response): response is { status: string; canAskAgain?: boolean } =>
+      Boolean(response),
+  );
+
+  // Web/unsupported platforms may not expose permission APIs.
+  if (validResponses.length === 0) {
+    return { granted: true, canAskAgain: true };
+  }
+
+  return {
+    granted: validResponses.every((response) => response.status === "granted"),
+    canAskAgain: validResponses.some(
+      (response) => response.canAskAgain !== false,
+    ),
+  };
+}
+
 export function useLevelSensor(): LevelSensorState {
   const [state, setState] = useState<LevelSensorStateData>({
     status: "loading",
@@ -74,6 +103,24 @@ export function useLevelSensor(): LevelSensorState {
 
     async function setup() {
       try {
+        const permissionSummary = await requestMotionPermissions();
+
+        if (!permissionSummary.granted) {
+          if (active) {
+            setState({
+              status: "error",
+              angles: DEFAULT_ANGLES,
+              nearLevel: true,
+              calibrationOffset: calibrationOffset.current,
+              errorMessage: permissionSummary.canAskAgain
+                ? "Motion permission is required. Please allow access and reopen the app."
+                : "Motion permission was denied. Please enable Motion & Fitness access in Settings.",
+            });
+          }
+
+          return;
+        }
+
         const [accelerometerAvailable, gyroscopeAvailable] = await Promise.all([
           Accelerometer.isAvailableAsync(),
           Gyroscope.isAvailableAsync(),
