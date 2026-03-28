@@ -1,8 +1,9 @@
-import { Pressable, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
+import { AppButton } from "@/components/ui/app-button";
 import { BottomTabInset, MaxContentWidth, Spacing } from "@/constants/theme";
 import { useLevelSensor } from "@/features/level/use-level-sensor";
 
@@ -71,26 +72,20 @@ export default function HomeScreen() {
           </ThemedText>
 
           <ThemedView style={styles.actionsRow}>
-            <Pressable
+            <AppButton
               disabled={!canCalibrate}
+              label="Set Current as Level"
               onPress={() => {
                 void level.calibrate();
               }}
-              style={[
-                styles.actionButton,
-                !canCalibrate && styles.actionButtonDisabled,
-              ]}
-            >
-              <ThemedText type="smallBold">Set Current as Level</ThemedText>
-            </Pressable>
-            <Pressable
+            />
+            <AppButton
+              label="Reset Calibration"
+              variant="ghost"
               onPress={() => {
                 void level.resetCalibration();
               }}
-              style={styles.actionButton}
-            >
-              <ThemedText type="smallBold">Reset Calibration</ThemedText>
-            </Pressable>
+            />
           </ThemedView>
         </ThemedView>
       </SafeAreaView>
@@ -149,16 +144,5 @@ const styles = StyleSheet.create({
   actionsRow: {
     flexDirection: "row",
     gap: Spacing.two,
-  },
-  actionButton: {
-    flex: 1,
-    borderRadius: Spacing.three,
-    paddingHorizontal: Spacing.two,
-    paddingVertical: Spacing.two,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  actionButtonDisabled: {
-    opacity: 0.5,
   },
 });
