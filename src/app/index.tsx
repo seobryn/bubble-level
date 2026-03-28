@@ -95,7 +95,6 @@ export default function HomeScreen() {
                 {t("app.subtitle")}
               </ThemedText>
             </View>
-            <LanguageSelector />
           </ThemedView>
 
           <ThemedView style={styles.levelCard} type="backgroundElement">
@@ -140,6 +139,8 @@ export default function HomeScreen() {
               >
                 {statusIndicator.text}
               </ThemedText>
+
+              <LanguageSelector variant="compact" />
             </View>
           </ThemedView>
         </SafeAreaView>
@@ -305,6 +306,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     width: "100%",
+    gap: Spacing.three,
   },
   statusIndicatorText: {
     fontSize: 18,
