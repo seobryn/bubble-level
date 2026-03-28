@@ -47,4 +47,35 @@ describe("sensor-adapter", () => {
       rotationRate: { x: 0.1, y: 0.2, z: 0.3 },
     });
   });
+
+  it("suppresses tiny jitter changes with deadband", () => {
+    const result = computeLevelFromSensors({
+      accelerometer: { x: 0.001, y: -0.001, z: -1 },
+      gyroscope: { x: 0.001, y: 0.001, z: 0.001 },
+      previousAngles: { pitch: 0, roll: 0 },
+      calibration: { pitch: 0, roll: 0 },
+      alpha: 0.2,
+      deadbandDeg: 0.08,
+      toleranceDeg: 1,
+    });
+
+    expect(result).toEqual({
+      angles: { pitch: 0, roll: 0 },
+      nearLevel: true,
+      rotationRate: { x: 0.001, y: 0.001, z: 0.001 },
+    });
+  });
+
+  it("uses stronger smoothing when device is still", () => {
+    const result = computeLevelFromSensors({
+      accelerometer: { x: 0.5, y: 0, z: -0.866 },
+      gyroscope: { x: 0.001, y: 0.001, z: 0.001 },
+      previousAngles: { pitch: 0, roll: 0 },
+      calibration: { pitch: 0, roll: 0 },
+      deadbandDeg: 0,
+      toleranceDeg: 1,
+    });
+
+    expect(result?.angles.pitch).toBeCloseTo(1.3, 1);
+  });
 });

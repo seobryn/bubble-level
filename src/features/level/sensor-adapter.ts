@@ -30,6 +30,7 @@ export type LevelComputationInput = {
   previousAngles?: LevelAngles;
   calibration?: LevelAngles;
   alpha?: number;
+  deadbandDeg?: number;
   toleranceDeg?: number;
 };
 
@@ -45,6 +46,27 @@ function isFiniteSample(sample: { x: number; y: number; z: number }) {
     Number.isFinite(sample.y) &&
     Number.isFinite(sample.z)
   );
+}
+
+function gyroscopeMagnitude(sample: GyroscopeSample): number {
+  return Math.sqrt(sample.x ** 2 + sample.y ** 2 + sample.z ** 2);
+}
+
+function applyDeadband(
+  previous: LevelAngles,
+  next: LevelAngles,
+  deadbandDeg: number,
+): LevelAngles {
+  return {
+    pitch:
+      Math.abs(next.pitch - previous.pitch) < deadbandDeg
+        ? previous.pitch
+        : next.pitch,
+    roll:
+      Math.abs(next.roll - previous.roll) < deadbandDeg
+        ? previous.roll
+        : next.roll,
+  };
 }
 
 export function mapSensorSamples(
@@ -83,12 +105,36 @@ export function computeLevelFromSensors(
   const calibratedAngles = applyCalibration(rawAngles, calibration);
 
   const previousAngles = input.previousAngles ?? calibratedAngles;
-  const alpha = input.alpha ?? 1;
-  const smoothedAngles = smoothAngles(previousAngles, calibratedAngles, alpha);
+  const explicitAlpha = input.alpha;
+  let adaptiveAlpha = explicitAlpha ?? 0.12;
+  if (input.alpha === undefined) {
+    const motion = gyroscopeMagnitude(frame.rotationRate);
+    if (motion < 0.03) {
+      adaptiveAlpha *= 0.35;
+    } else if (motion > 0.2) {
+      adaptiveAlpha *= 1.6;
+    }
+  }
+
+  const effectiveAlpha =
+    explicitAlpha !== undefined
+      ? Math.max(0, Math.min(1, explicitAlpha))
+      : Math.min(0.35, adaptiveAlpha);
+
+  const smoothedAngles = smoothAngles(
+    previousAngles,
+    calibratedAngles,
+    effectiveAlpha,
+  );
+  const stableAngles = applyDeadband(
+    previousAngles,
+    smoothedAngles,
+    input.deadbandDeg ?? 0.08,
+  );
 
   return {
-    angles: smoothedAngles,
-    nearLevel: isNearLevel(smoothedAngles, input.toleranceDeg ?? 1),
+    angles: stableAngles,
+    nearLevel: isNearLevel(stableAngles, input.toleranceDeg ?? 1),
     rotationRate: frame.rotationRate,
   };
 }

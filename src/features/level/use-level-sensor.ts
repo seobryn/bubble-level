@@ -98,8 +98,8 @@ export function useLevelSensor(): LevelSensorState {
         calibrationOffset.current =
           storedCalibration ?? resetCalibrationOffset();
 
-        Accelerometer.setUpdateInterval(100);
-        Gyroscope.setUpdateInterval(100);
+        Accelerometer.setUpdateInterval(120);
+        Gyroscope.setUpdateInterval(120);
 
         const gyroscopeSubscription = Gyroscope.addListener((measurement) => {
           latestGyroscope.current = {
@@ -120,7 +120,7 @@ export function useLevelSensor(): LevelSensorState {
               gyroscope: latestGyroscope.current,
               previousAngles: latestAngles.current,
               calibration: calibrationOffset.current,
-              alpha: 0.2,
+              deadbandDeg: 0.08,
               toleranceDeg: 1,
             });
 

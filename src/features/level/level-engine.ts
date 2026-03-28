@@ -13,9 +13,10 @@ const RAD_TO_DEG = 180 / Math.PI;
 
 export function gravityToAngles(vector: GravityVector): LevelAngles {
   const pitch =
-    Math.atan2(vector.x, Math.sqrt(vector.y ** 2 + vector.z ** 2)) * RAD_TO_DEG;
-  const roll =
     Math.atan2(vector.y, Math.sqrt(vector.x ** 2 + vector.z ** 2)) * RAD_TO_DEG;
+  const roll =
+    -Math.atan2(vector.x, Math.sqrt(vector.y ** 2 + vector.z ** 2)) *
+    RAD_TO_DEG;
 
   return { pitch, roll };
 }
