@@ -1,19 +1,33 @@
+import { useEffect, useRef } from "react";
 import { StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { OnboardingModal } from "@/components/onboarding-modal";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { MaxContentWidth, Spacing } from "@/constants/theme";
+import { useHapticFeedback } from "@/features/haptics/use-haptic-feedback";
 import { computeBubbleOffset } from "@/features/level/bubble-visual";
 import { useLevelSensor } from "@/features/level/use-level-sensor";
+import { useOnboarding } from "@/features/onboarding/use-onboarding";
 
 export default function HomeScreen() {
   const level = useLevelSensor();
+  const { hints, dismissHints } = useOnboarding();
+  const { triggerOnNearLevel } = useHapticFeedback();
+  const prevNearLevelRef = useRef(false);
+
   const bubbleOffset = computeBubbleOffset({
     angles: level.angles,
     travelRadius: 88,
     maxTiltDeg: 10,
   });
+
+  // Trigger haptic feedback on near-level state change
+  useEffect(() => {
+    triggerOnNearLevel(prevNearLevelRef.current, level.nearLevel);
+    prevNearLevelRef.current = level.nearLevel;
+  }, [level.nearLevel, triggerOnNearLevel]);
 
   const statusIndicator =
     level.status === "loading"
@@ -25,69 +39,79 @@ export default function HomeScreen() {
           : { text: "Adjust Position", color: "#f97316" };
 
   return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection} type="backgroundElement">
-          <ThemedText type="title" style={styles.title}>
-            Bubble Level
-          </ThemedText>
-          <ThemedText
-            type="small"
-            themeColor="textSecondary"
-            style={styles.subtitle}
-          >
-            Tilt the device and keep the bubble on the center cross
-          </ThemedText>
-        </ThemedView>
+    <>
+      <OnboardingModal
+        hints={hints}
+        visible={hints.length > 0}
+        onDismiss={dismissHints}
+      />
 
-        <ThemedView style={styles.levelCard} type="backgroundElement">
-          <View style={styles.vialOuter}>
-            <View
-              style={[
-                styles.vialInner,
-                level.nearLevel && styles.vialInnerLevel,
-              ]}
+      <ThemedView style={styles.container}>
+        <SafeAreaView style={styles.safeArea}>
+          <ThemedView style={styles.heroSection} type="backgroundElement">
+            <ThemedText type="title" style={styles.title}>
+              Bubble Level
+            </ThemedText>
+            <ThemedText
+              type="small"
+              themeColor="textSecondary"
+              style={styles.subtitle}
             >
-              <View style={styles.liquidBase} />
-              <View style={styles.liquidGlow} />
+              Tilt the device and keep the bubble on the center cross
+            </ThemedText>
+          </ThemedView>
 
-              <View style={styles.centerCross}>
-                <View style={styles.crossHorizontal} />
-                <View style={styles.crossVertical} />
-              </View>
+          <View style={styles.spacer} />
 
+          <ThemedView style={styles.levelCard} type="backgroundElement">
+            <View style={styles.vialOuter}>
               <View
                 style={[
-                  styles.bubble,
-                  level.nearLevel && styles.bubbleLevel,
-                  {
-                    transform: [
-                      { translateX: bubbleOffset.x },
-                      { translateY: bubbleOffset.y },
-                    ],
-                  },
+                  styles.vialInner,
+                  level.nearLevel && styles.vialInnerLevel,
                 ]}
               >
-                <View style={styles.bubbleCrossHorizontal} />
-                <View style={styles.bubbleCrossVertical} />
+                <View style={styles.liquidBase} />
+                <View style={styles.liquidGlow} />
+
+                <View style={styles.centerCross}>
+                  <View style={styles.crossHorizontal} />
+                  <View style={styles.crossVertical} />
+                </View>
+
+                <View
+                  style={[
+                    styles.bubble,
+                    level.nearLevel && styles.bubbleLevel,
+                    {
+                      transform: [
+                        { translateX: bubbleOffset.x },
+                        { translateY: bubbleOffset.y },
+                      ],
+                    },
+                  ]}
+                >
+                  <View style={styles.bubbleCrossHorizontal} />
+                  <View style={styles.bubbleCrossVertical} />
+                </View>
               </View>
             </View>
-          </View>
 
-          <View style={styles.statusIndicatorContainer}>
-            <ThemedText
-              type="smallBold"
-              style={[
-                styles.statusIndicatorText,
-                { color: statusIndicator.color },
-              ]}
-            >
-              {statusIndicator.text}
-            </ThemedText>
-          </View>
-        </ThemedView>
-      </SafeAreaView>
-    </ThemedView>
+            <View style={styles.statusIndicatorContainer}>
+              <ThemedText
+                type="smallBold"
+                style={[
+                  styles.statusIndicatorText,
+                  { color: statusIndicator.color },
+                ]}
+              >
+                {statusIndicator.text}
+              </ThemedText>
+            </View>
+          </ThemedView>
+        </SafeAreaView>
+      </ThemedView>
+    </>
   );
 }
 
@@ -105,7 +129,7 @@ const styles = StyleSheet.create({
     paddingBottom: Spacing.four,
     maxWidth: MaxContentWidth,
     width: "100%",
-    justifyContent: "space-evenly",
+    justifyContent: "flex-start",
     alignSelf: "center",
   },
   heroSection: {
@@ -121,6 +145,9 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     lineHeight: 20,
+  },
+  spacer: {
+    flex: 1,
   },
   levelCard: {
     alignItems: "center",
