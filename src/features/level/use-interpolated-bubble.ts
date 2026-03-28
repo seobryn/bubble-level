@@ -4,6 +4,7 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
+  withTiming,
 } from "react-native-reanimated";
 
 import type { BubbleOffset } from "@/features/level/bubble-visual";
@@ -27,12 +28,6 @@ type InterpolationConfig = {
    * Default: 100
    */
   stiffness?: number;
-
-  /**
-   * Overshoot - how much it overshoots before settling
-   * Default: 0 (no overshoot)
-   */
-  overshoot?: number;
 };
 
 /**
@@ -51,10 +46,8 @@ type InterpolationConfig = {
 export function useInterpolatedBubblePosition(
   targetOffset: BubbleOffset,
   config: InterpolationConfig = {},
-): Animated.AnimateStyle<{
-  transform: Array<{ translateX: Animated.Adaptable<number> }>;
-}> {
-  const { damping = 0.8, mass = 0.5, stiffness = 100, overshoot = 0 } = config;
+) {
+  const { damping = 0.8, mass = 0.5, stiffness = 100 } = config;
 
   const animatedX = useSharedValue(targetOffset.x);
   const animatedY = useSharedValue(targetOffset.y);
@@ -65,16 +58,14 @@ export function useInterpolatedBubblePosition(
       damping,
       mass,
       stiffness,
-      overshoot,
     });
 
     animatedY.value = withSpring(targetOffset.y, {
       damping,
       mass,
       stiffness,
-      overshoot,
     });
-  }, [targetOffset.x, targetOffset.y]);
+  }, [targetOffset.x, targetOffset.y, damping, mass, stiffness]);
 
   return useAnimatedStyle(() => ({
     transform: [
@@ -101,19 +92,17 @@ export function useInterpolatedBubblePosition(
 export function useLinearInterpolatedBubblePosition(
   targetOffset: BubbleOffset,
   durationMs: number = 100,
-): Animated.AnimateStyle<{
-  transform: Array<{ translateX: Animated.Adaptable<number> }>;
-}> {
+) {
   const animatedX = useSharedValue(targetOffset.x);
   const animatedY = useSharedValue(targetOffset.y);
 
   useEffect(() => {
-    animatedX.value = Animated.withTiming(targetOffset.x, {
+    animatedX.value = withTiming(targetOffset.x, {
       duration: durationMs,
       easing: Easing.inOut(Easing.ease),
     });
 
-    animatedY.value = Animated.withTiming(targetOffset.y, {
+    animatedY.value = withTiming(targetOffset.y, {
       duration: durationMs,
       easing: Easing.inOut(Easing.ease),
     });
