@@ -6,6 +6,7 @@ import {
   type GravityVector,
   type LevelAngles,
 } from "@/features/level/level-engine";
+import { SMOOTHING_CONFIG } from "@/features/level/sensor-tuning";
 
 export type AccelerometerSample = {
   x: number;
@@ -106,20 +107,27 @@ export function computeLevelFromSensors(
 
   const previousAngles = input.previousAngles ?? calibratedAngles;
   const explicitAlpha = input.alpha;
-  let adaptiveAlpha = explicitAlpha ?? 0.12;
+  let adaptiveAlpha = explicitAlpha ?? SMOOTHING_CONFIG.baseAlpha;
+
   if (input.alpha === undefined) {
     const motion = gyroscopeMagnitude(frame.rotationRate);
-    if (motion < 0.03) {
-      adaptiveAlpha *= 0.35;
-    } else if (motion > 0.2) {
-      adaptiveAlpha *= 1.6;
+    const { motionFactors } = SMOOTHING_CONFIG;
+
+    if (motion < motionFactors.stationaryMaxMotion) {
+      adaptiveAlpha *= motionFactors.stationaryMultiplier;
+    } else if (motion < motionFactors.slowMaxMotion) {
+      adaptiveAlpha *= motionFactors.slowMultiplier;
+    } else if (motion < motionFactors.moderateMaxMotion) {
+      adaptiveAlpha *= motionFactors.moderateMultiplier;
+    } else {
+      adaptiveAlpha *= motionFactors.highMultiplier;
     }
   }
 
   const effectiveAlpha =
     explicitAlpha !== undefined
       ? Math.max(0, Math.min(1, explicitAlpha))
-      : Math.min(0.35, adaptiveAlpha);
+      : Math.min(SMOOTHING_CONFIG.maxEffectiveAlpha, adaptiveAlpha);
 
   const smoothedAngles = smoothAngles(
     previousAngles,
