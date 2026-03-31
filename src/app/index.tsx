@@ -1,5 +1,5 @@
-import { useEffect, useRef } from "react";
-import { StyleSheet, View } from "react-native";
+import { useEffect, useRef, useState } from "react";
+import { Pressable, StyleSheet, View } from "react-native";
 import Animated from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -26,6 +26,7 @@ export default function HomeScreen() {
   const { triggerOnNearLevel } = useHapticFeedback();
   const { t } = useTranslation();
   const prevNearLevelRef = useRef(false);
+  const [showAngle, setShowAngle] = useState(false);
 
   // Initialize diagnostics on mount
   useEffect(() => {
@@ -131,21 +132,62 @@ export default function HomeScreen() {
             </View>
 
             <View style={styles.statusIndicatorContainer}>
-              <ThemedText
-                type="smallBold"
-                style={[
-                  styles.statusIndicatorText,
-                  { color: statusIndicator.color },
-                ]}
-              >
-                {statusIndicator.text}
-              </ThemedText>
+              <View style={styles.statusRow}>
+                <ThemedText
+                  type="smallBold"
+                  style={[
+                    styles.statusIndicatorText,
+                    { color: statusIndicator.color },
+                  ]}
+                >
+                  {statusIndicator.text}
+                </ThemedText>
+
+                <Pressable
+                  onPress={() => setShowAngle(!showAngle)}
+                  style={styles.angleToggleButton}
+                >
+                  <ThemedText
+                    type="smallBold"
+                    style={[
+                      styles.angleToggleText,
+                      showAngle && styles.angleToggleTextActive,
+                    ]}
+                  >
+                    {t("angle.toggle")}
+                  </ThemedText>
+                </Pressable>
+              </View>
+
+              {showAngle && (
+                <View style={styles.angleDisplay}>
+                  <View style={styles.angleRow}>
+                    <ThemedText type="small" style={styles.angleLabel}>
+                      {t("angle.pitch")}:
+                    </ThemedText>
+                    <ThemedText type="smallBold" style={styles.angleValue}>
+                      {level.angles.pitch.toFixed(1)}°
+                    </ThemedText>
+                  </View>
+                  <View style={styles.angleRow}>
+                    <ThemedText type="small" style={styles.angleLabel}>
+                      {t("angle.roll")}:
+                    </ThemedText>
+                    <ThemedText type="smallBold" style={styles.angleValue}>
+                      {level.angles.roll.toFixed(1)}°
+                    </ThemedText>
+                  </View>
+                </View>
+              )}
 
               <LanguageSelector variant="compact" />
             </View>
           </ThemedView>
+
+          <View style={styles.adContainer}>
+            <BannerAdBanner />
+          </View>
         </SafeAreaView>
-        <BannerAdBanner />
       </ThemedView>
     </>
   );
@@ -154,8 +196,9 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    flexDirection: "row",
+    justifyContent: "flex-start",
+    flexDirection: "column",
+    alignItems: "center",
   },
   safeArea: {
     flex: 1,
@@ -310,9 +353,60 @@ const styles = StyleSheet.create({
     width: "100%",
     gap: Spacing.three,
   },
+  statusRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: Spacing.two,
+    width: "100%",
+  },
   statusIndicatorText: {
     fontSize: 18,
     fontWeight: "600",
     letterSpacing: 0.5,
+  },
+  angleToggleButton: {
+    paddingHorizontal: Spacing.three,
+    paddingVertical: Spacing.two,
+    borderRadius: Spacing.two,
+    borderWidth: 1.5,
+    borderColor: "#999",
+  },
+  angleToggleText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#999",
+  },
+  angleToggleTextActive: {
+    color: "#22c55e",
+    borderColor: "#22c55e",
+  },
+  angleDisplay: {
+    alignItems: "center",
+    gap: Spacing.two,
+    paddingHorizontal: Spacing.three,
+    paddingVertical: Spacing.two,
+    borderRadius: Spacing.two,
+    backgroundColor: "rgba(0, 0, 0, 0.05)",
+  },
+  angleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: Spacing.two,
+  },
+  angleLabel: {
+    fontSize: 14,
+    fontWeight: "500",
+  },
+  angleValue: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#22c55e",
+  },
+  adContainer: {
+    width: "100%",
+    alignItems: "center",
+    marginTop: Spacing.one,
   },
 });

@@ -33,6 +33,11 @@ export const translations: Record<Language, Translations> = {
     "settings.english": "English",
     "settings.spanish": "Español",
     "language.label": "🌐 Language",
+
+    // Angle Display
+    "angle.toggle": "Angle",
+    "angle.pitch": "Pitch",
+    "angle.roll": "Roll",
   },
   es: {
     // Pantalla principal
@@ -63,6 +68,11 @@ export const translations: Record<Language, Translations> = {
     "settings.english": "English",
     "settings.spanish": "Español",
     "language.label": "🌐 Idioma",
+
+    // Pantalla de ángulo
+    "angle.toggle": "Ángulo",
+    "angle.pitch": "Inclinación",
+    "angle.roll": "Giro",
   },
 };
 
