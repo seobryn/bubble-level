@@ -20,7 +20,8 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.anonymous.bubblelevel"
     },
     "web": {
       "output": "static",
@@ -28,6 +29,13 @@
     },
     "plugins": [
       "expo-router",
+      [
+        "react-native-google-mobile-ads",
+        {
+          "androidAppId": "ca-app-pub-REPLACE_ME~REPLACE_ME",
+          "iosAppId": "ca-app-pub-REPLACE_ME~REPLACE_ME"
+        }
+      ],
       [
         "expo-splash-screen",
         {
@@ -42,6 +50,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "827310f2-6dae-4fe7-9a53-2ae581e54bfc"
+      }
     }
   }
 }

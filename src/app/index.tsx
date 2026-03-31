@@ -8,6 +8,7 @@ import { OnboardingModal } from "@/components/onboarding-modal";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { MaxContentWidth, Spacing } from "@/constants/theme";
+import { BannerAdBanner } from "@/features/ads/banner-ad";
 import {
   hapticTriggerTracker,
   logHapticDiagnostics,
@@ -144,6 +145,7 @@ export default function HomeScreen() {
             </View>
           </ThemedView>
         </SafeAreaView>
+        <BannerAdBanner />
       </ThemedView>
     </>
   );

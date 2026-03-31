@@ -6,4 +6,7 @@ module.exports = {
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/src/$1",
   },
+  globals: {
+    __DEV__: true,
+  },
 };
