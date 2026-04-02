@@ -18,11 +18,13 @@ import { computeBubbleOffset } from "@/features/level/bubble-visual";
 import { useInterpolatedBubblePosition } from "@/features/level/use-interpolated-bubble";
 import { useLevelSensor } from "@/features/level/use-level-sensor";
 import { useOnboarding } from "@/features/onboarding/use-onboarding";
+import { usePremium } from "@/features/premium/use-premium";
 import { useTranslation } from "@/i18n/use-translation";
 
 export default function HomeScreen() {
   const level = useLevelSensor();
   const { hints, dismissHints } = useOnboarding();
+  const { isPremium, purchaseRemoveAds } = usePremium();
   const { triggerOnNearLevel } = useHapticFeedback();
   const { t } = useTranslation();
   const prevNearLevelRef = useRef(false);
@@ -181,12 +183,28 @@ export default function HomeScreen() {
               )}
 
               <LanguageSelector variant="compact" />
+
+              {!isPremium && (
+                <Pressable
+                  onPress={purchaseRemoveAds}
+                  style={styles.removeAdsButton}
+                >
+                  <ThemedText
+                    type="smallBold"
+                    style={styles.removeAdsText}
+                  >
+                    {t("premium.removeAds")}
+                  </ThemedText>
+                </Pressable>
+              )}
             </View>
           </ThemedView>
 
-          <View style={styles.adContainer}>
-            <BannerAdBanner />
-          </View>
+          {!isPremium && (
+            <View style={styles.adContainer}>
+              <BannerAdBanner />
+            </View>
+          )}
         </SafeAreaView>
       </ThemedView>
     </>
@@ -408,5 +426,15 @@ const styles = StyleSheet.create({
     width: "100%",
     alignItems: "center",
     marginTop: Spacing.one,
+  },
+  removeAdsButton: {
+    marginTop: Spacing.two,
+    paddingHorizontal: Spacing.four,
+    paddingVertical: Spacing.two,
+    borderRadius: Spacing.two,
+    backgroundColor: "#29462e",
+  },
+  removeAdsText: {
+    color: "#5cea8e",
   },
 });

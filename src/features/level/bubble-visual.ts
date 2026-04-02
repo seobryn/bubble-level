@@ -32,11 +32,11 @@ export function computeBubbleOffset({
       -angles.roll * unitsPerDegree,
       -safeTravelRadius,
       safeTravelRadius,
-    ),
+    ) + 0,
     y: clamp(
       -angles.pitch * unitsPerDegree,
       -safeTravelRadius,
       safeTravelRadius,
-    ),
+    ) + 0,
   };
 }

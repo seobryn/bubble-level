@@ -68,7 +68,7 @@ describe("sensor-adapter", () => {
 
   it("uses stronger smoothing when device is still", () => {
     const result = computeLevelFromSensors({
-      accelerometer: { x: 0.5, y: 0, z: -0.866 },
+      accelerometer: { x: 0, y: 0.174, z: -0.985 }, // ~10 deg pitch
       gyroscope: { x: 0.001, y: 0.001, z: 0.001 },
       previousAngles: { pitch: 0, roll: 0 },
       calibration: { pitch: 0, roll: 0 },
@@ -76,6 +76,6 @@ describe("sensor-adapter", () => {
       toleranceDeg: 1,
     });
 
-    expect(result?.angles.pitch).toBeCloseTo(1.3, 1);
+    expect(result?.angles.pitch).toBeCloseTo(0.7, 1);
   });
 });

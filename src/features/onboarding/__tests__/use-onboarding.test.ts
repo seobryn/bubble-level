@@ -9,8 +9,10 @@ describe("useOnboarding integration", () => {
 
   const createMockStorage = () => ({
     getItem: (key: string) => Promise.resolve(mockStorage[key] ?? null),
-    setItem: (key: string, value: string) =>
-      Promise.resolve((mockStorage[key] = value)),
+    setItem: (key: string, value: string) => {
+      mockStorage[key] = value;
+      return Promise.resolve();
+    },
   });
 
   beforeEach(() => {

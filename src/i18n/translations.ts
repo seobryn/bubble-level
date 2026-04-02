@@ -38,6 +38,9 @@ export const translations: Record<Language, Translations> = {
     "angle.toggle": "Angle",
     "angle.pitch": "Pitch",
     "angle.roll": "Roll",
+
+    // Premium
+    "premium.removeAds": "Remove Ads",
   },
   es: {
     // Pantalla principal
@@ -73,6 +76,9 @@ export const translations: Record<Language, Translations> = {
     "angle.toggle": "Ángulo",
     "angle.pitch": "Inclinación",
     "angle.roll": "Giro",
+
+    // Premium
+    "premium.removeAds": "Quitar Anuncios",
   },
 };
 

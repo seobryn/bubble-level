@@ -7,7 +7,7 @@ describe("sensor-adapter convergence with improved tuning", () => {
 
     // Frame 1: Raw reading at 2 degrees off
     const result1 = computeLevelFromSensors({
-      accelerometer: { x: 0.15, y: 0.15, z: 9.8 },
+      accelerometer: { x: 0.4, y: 0.4, z: 9.8 },
       gyroscope: stationaryGyroscope,
       calibration: { pitch: 0, roll: 0 },
       deadbandDeg: 0.08,

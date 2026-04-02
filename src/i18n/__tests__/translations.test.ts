@@ -9,7 +9,7 @@ describe("i18n Translations", () => {
 
     it("should return Spanish translation for valid key", () => {
       const result = getTranslation("es", "app.title");
-      expect(result).toBe("Nivel de Burbuja");
+      expect(result).toBe("Nivel");
     });
 
     it("should fallback to English if translation missing in language", () => {

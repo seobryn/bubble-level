@@ -1,3 +1,4 @@
+import { renderHook } from "@testing-library/react-native";
 import { resetHapticState } from "@/features/haptics/haptic-feedback";
 import { useHapticFeedback } from "@/features/haptics/use-haptic-feedback";
 
@@ -8,7 +9,7 @@ describe("useHapticFeedback hook", () => {
 
   it("triggers haptic callback when transitioning to near-level", () => {
     const mockHaptic = jest.fn().mockResolvedValue(undefined);
-    const { result } = require("@testing-library/react-native").renderHook(() =>
+    const { result } = renderHook(() =>
       useHapticFeedback({ executeHaptic: mockHaptic }),
     );
 
@@ -20,7 +21,7 @@ describe("useHapticFeedback hook", () => {
 
   it("does not trigger when staying near-level", () => {
     const mockHaptic = jest.fn();
-    const { result } = require("@testing-library/react-native").renderHook(() =>
+    const { result } = renderHook(() =>
       useHapticFeedback({ executeHaptic: mockHaptic }),
     );
 
@@ -40,7 +41,7 @@ describe("useHapticFeedback hook", () => {
       }),
     );
 
-    const { result } = require("@testing-library/react-native").renderHook(() =>
+    const { result } = renderHook(() =>
       useHapticFeedback({ executeHaptic: mockHaptic }),
     );
 
@@ -54,26 +55,30 @@ describe("useHapticFeedback hook", () => {
     expect(mockHaptic).toHaveBeenCalledTimes(1);
   });
 
-  it("handles haptic execution errors gracefully", () => {
+  it("handles haptic execution errors gracefully", async () => {
     const mockError = new Error("Haptic not available");
     const mockHaptic = jest.fn().mockRejectedValue(mockError);
 
     const consoleWarnSpy = jest.spyOn(console, "warn").mockImplementation();
 
-    const { result } = require("@testing-library/react-native").renderHook(() =>
+    const { result } = renderHook(() =>
       useHapticFeedback({ executeHaptic: mockHaptic }),
     );
 
     result.current.triggerOnNearLevel(false, true);
 
     expect(mockHaptic).toHaveBeenCalledTimes(1);
+    
+    // Wait for the promise rejection handler to be called
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    
     expect(consoleWarnSpy).toHaveBeenCalled();
 
     consoleWarnSpy.mockRestore();
   });
 
   it("uses default haptic when not provided", () => {
-    const { result } = require("@testing-library/react-native").renderHook(() =>
+    const { result } = renderHook(() =>
       useHapticFeedback(),
     );
 
