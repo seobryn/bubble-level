@@ -41,6 +41,9 @@ export const translations: Record<Language, Translations> = {
 
     // Premium
     "premium.removeAds": "Remove Ads",
+    "premium.errorTitle": "Purchase Error",
+    "premium.errorNotConfigured": "The product '{{productId}}' hasn't been configured in Google Play / App Store yet.",
+    "premium.errorFallback": "Could not connect to the app store. Please try again later.",
   },
   es: {
     // Pantalla principal
@@ -79,6 +82,9 @@ export const translations: Record<Language, Translations> = {
 
     // Premium
     "premium.removeAds": "Quitar Anuncios",
+    "premium.errorTitle": "Error de Compra",
+    "premium.errorNotConfigured": "El producto '{{productId}}' aún no se ha configurado en Google Play / App Store.",
+    "premium.errorFallback": "No se pudo conectar a la tienda. Por favor intenta más tarde.",
   },
 };
 
